@@ -525,16 +525,17 @@ enum __SCRIBBLE_GLYPH_LAYOUT
 
 enum __SCRIBBLE_VERTEX_BUFFER
 {
-    __VERTEX_BUFFER,         //0
-    __TEXTURE,               //1
-    __MSDF_RANGE,            //2
-    __MSDF_THICKNESS_OFFSET, //3
-    __TEXEL_WIDTH,           //4
-    __TEXEL_HEIGHT,          //5
-    __SHADER,                //6
-    __BUFFER,                //7
-    __BILINEAR,              //8
-    __SIZE                   //9
+    __VERTEX_BUFFER,         // 0
+    __TEXTURE,               // 1
+    __MSDF_RANGE,            // 2
+    __MSDF_THICKNESS_OFFSET, // 3
+    __TEXEL_WIDTH,           // 4
+    __TEXEL_HEIGHT,          // 5
+    __SHADER,                // 6
+    __BUFFER,                // 7
+    __BILINEAR,              // 8
+    __FAST_MODE,             // 9
+    __SIZE                   //10
 }
 
 enum __SCRIBBLE_ANIM

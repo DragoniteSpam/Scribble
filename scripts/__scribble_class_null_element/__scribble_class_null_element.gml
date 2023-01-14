@@ -279,6 +279,11 @@ function __scribble_class_null_element() constructor
         __error();
     }
     
+    static is_fast_mode = function()
+    {
+        __error();
+    }
+    
     static animation_sync = function()
     {
         __error();

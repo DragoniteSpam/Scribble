@@ -74,31 +74,30 @@ attribute vec4  in_Colour;       //Colour. This attribute is used for sprite dat
 attribute vec2  in_TextureCoord; //UVs
 attribute vec2  in_Colour2;      //{Scale, dY}
 
-varying vec2  v_vTexcoord;
-varying vec4  v_vColour;
-varying float v_fPixelScale;
-varying float v_fTextScale;
+varying vec2   v_vTexcoord;
+varying vec4   v_vColour;
+varying float  v_fPixelScale;
 
-uniform vec4  u_vColourBlend;                           //4
-uniform vec4  u_vGradient;                              //4
-uniform vec2  u_vSkew;                                  //2
-uniform vec2  u_vRegionActive;                          //2
-uniform vec4  u_vRegionColour;                          //4
-uniform float u_fTime;                                  //1
-uniform float u_aDataFields[MAX_ANIM_FIELDS];           //21
-uniform vec2  u_aBezier[3];                             //6
-uniform float u_fBlinkState;                            //1
+uniform vec4   u_vColourBlend;                           //4
+uniform vec4   u_vGradient;                              //4
+uniform vec2   u_vSkew;                                  //2
+uniform vec2   u_vRegionActive;                          //2
+uniform vec4   u_vRegionColour;                          //4
+uniform float  u_fTime;                                  //1
+uniform float  u_aDataFields[MAX_ANIM_FIELDS];           //21
+uniform vec2   u_aBezier[3];                             //6
+uniform float  u_fBlinkState;                            //1
 
-uniform int   u_iTypewriterMethod;                      //1
-uniform int   u_iTypewriterCharMax;                     //1
-uniform float u_fTypewriterWindowArray[2*WINDOW_COUNT]; //6
-uniform float u_fTypewriterSmoothness;                  //1
-uniform vec2  u_vTypewriterStartPos;                    //2
-uniform vec2  u_vTypewriterStartScale;                  //2
-uniform float u_fTypewriterStartRotation;               //1
-uniform float u_fTypewriterAlphaDuration;               //1
+uniform int    u_iTypewriterMethod;                      //1
+uniform int    u_iTypewriterCharMax;                     //1
+uniform float  u_fTypewriterWindowArray[2*WINDOW_COUNT]; //6
+uniform float  u_fTypewriterSmoothness;                  //1
+uniform vec2   u_vTypewriterStartPos;                    //2
+uniform vec2   u_vTypewriterStartScale;                  //2
+uniform float  u_fTypewriterStartRotation;               //1
+uniform float  u_fTypewriterAlphaDuration;               //1
 
-uniform vec2  u_vOutputSize;                            //2
+uniform vec2   u_vOutputSize;                            //2
 
 float flagArray[MAX_EFFECTS];
 
@@ -391,13 +390,11 @@ float easeBounce(float time)
 void main()
 {
     //Find the scaling factor for the MVP matrix
-    v_fTextScale = in_Colour2.x;
-    
     mat4 wvpMatrix = gm_Matrices[MATRIX_WORLD_VIEW_PROJECTION];
     vec2 pixelScale = vec2(length(vec3(wvpMatrix[0][0], wvpMatrix[0][1], wvpMatrix[0][2])),
                            length(vec3(wvpMatrix[1][0], wvpMatrix[1][1], wvpMatrix[1][2])));
     pixelScale *= u_vOutputSize;
-    v_fPixelScale = 0.25*v_fTextScale*length(pixelScale);
+    v_fPixelScale = 0.25*in_Colour2.x*length(pixelScale);
     
     
     //Unpack character/line index

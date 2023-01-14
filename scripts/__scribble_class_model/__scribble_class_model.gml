@@ -58,6 +58,8 @@ function __scribble_class_model(_element, _model_cache_name) constructor
     __has_devanagari = false;
     __has_animation  = false;
     
+    __fast_mode = true;
+    
     __pages_array = []; //Stores each page of text
     
     
@@ -315,7 +317,7 @@ function __scribble_class_model(_element, _model_cache_name) constructor
     __scribble_gen_6_build_lines();
     __scribble_gen_7_build_pages();
     __scribble_gen_8_position_glyphs();
-    __scribble_gen_9_write_vbuffs();
+    if (__fast_mode) __scribble_gen_9_write_vbuffs_fast() else __scribble_gen_9_write_vbuffs();
     __scribble_gen_10_set_padding_flags();
     
     if (SCRIBBLE_VERBOSE)

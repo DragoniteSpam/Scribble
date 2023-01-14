@@ -11,7 +11,7 @@
                                     ;\
                                     var _half_w = 0.5*_glyph_grid[# _i, __SCRIBBLE_GEN_GLYPH.__WIDTH ];\
                                     var _half_h = 0.5*_glyph_grid[# _i, __SCRIBBLE_GEN_GLYPH.__HEIGHT];\
-                                    ;\\
+                                    ;\
                                     var _glyph_scale   = _glyph_grid[# _i, __SCRIBBLE_GEN_GLYPH.__SCALE];
 
 

@@ -628,6 +628,7 @@ function __scribble_gen_2_parser()
                         ++_control_count;
                         
                         __has_animation = true;
+                        __fast_mode = false;
                     break;
                     
                     // [/cycle]
@@ -785,6 +786,9 @@ function __scribble_gen_2_parser()
                         _control_grid[# _control_count, __SCRIBBLE_GEN_CONTROL.__TYPE] = __SCRIBBLE_GEN_CONTROL_TYPE.__REGION;
                         _control_grid[# _control_count, __SCRIBBLE_GEN_CONTROL.__DATA] = _tag_parameters[1];
                         ++_control_count;
+                        
+                        __has_animation = true;
+                        __fast_mode = false;
                     break;
                     
                     case 30:
@@ -836,6 +840,7 @@ function __scribble_gen_2_parser()
                             ++_control_count;
                             
                             __has_animation = true;
+                            __fast_mode = false;
                         }
                         else if (ds_map_exists(_effects_slash_map, _tag_command_name)) //Check if this is a effect name, but with a forward slash at the front
                         {
@@ -950,6 +955,7 @@ function __scribble_gen_2_parser()
                             if (!SCRIBBLE_LEGACY_ANIMATION_SPEED) _image_speed *= __scribble_image_speed_get(_sprite_index);
                             
                             //Only report the model as animated if we're actually able to animate this sprite
+                            //N.B. This *doesn't* prevent use of fast mode
                             if ((_image_speed != 0) && (sprite_get_number(_sprite_index) > 1)) __has_animation = true;
                             
                             //Add this glyph to our grid

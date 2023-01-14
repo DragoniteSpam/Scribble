@@ -160,13 +160,6 @@ function __scribble_class_element(_string, _unique_id) constructor
     {
         static _scribble_state = __scribble_get_state();
         
-        var _function_scope = other;
-        
-        if (!SCRIBBLE_WARNING_LEGACY_TYPEWRITER)
-        {
-            if (__tw_legacy_typist_use && (_typist == undefined)) _typist = __tw_legacy_typist;
-        }
-        
         //Get our model, and create one if needed
         var _model = __get_model(true);
         if (!is_struct(_model)) return undefined;
@@ -180,18 +173,33 @@ function __scribble_class_element(_string, _unique_id) constructor
         
         __last_drawn = __scribble_state.__frames;
         
-        //Update the blink state
-        if (_scribble_state.__blink_on_duration + _scribble_state.__blink_off_duration > 0)
+        if (_model.__fast_mode)
         {
-            __animation_blink_state = (((__animation_time + _scribble_state.__blink_time_offset) mod (_scribble_state.__blink_on_duration + _scribble_state.__blink_off_duration)) < _scribble_state.__blink_on_duration);
+            if (_model.__uses_standard_font) __set_fast_standard_uniforms();
+            if (_model.__uses_msdf_font) __set_fast_msdf_uniforms();
         }
         else
         {
-            __animation_blink_state = true;
+            var _function_scope = other;
+            
+            if (!SCRIBBLE_WARNING_LEGACY_TYPEWRITER)
+            {
+                if (__tw_legacy_typist_use && (_typist == undefined)) _typist = __tw_legacy_typist;
+            }
+            
+            //Update the blink state
+            if (_scribble_state.__blink_on_duration + _scribble_state.__blink_off_duration > 0)
+            {
+                __animation_blink_state = (((__animation_time + _scribble_state.__blink_time_offset) mod (_scribble_state.__blink_on_duration + _scribble_state.__blink_off_duration)) < _scribble_state.__blink_on_duration);
+            }
+            else
+            {
+                __animation_blink_state = true;
+            }
+            
+            if (_model.__uses_standard_font) __set_standard_uniforms(_typist, _function_scope);
+            if (_model.__uses_msdf_font) __set_msdf_uniforms(_typist, _function_scope);
         }
-        
-        if (_model.__uses_standard_font) __set_standard_uniforms(_typist, _function_scope);
-        if (_model.__uses_msdf_font) __set_msdf_uniforms(_typist, _function_scope);
         
         //...aaaand set the matrix
         var _old_matrix = matrix_get(matrix_world);
@@ -1070,6 +1078,14 @@ function __scribble_class_element(_string, _unique_id) constructor
         return _model.__has_animation;
     }
     
+    static is_fast_mode = function()
+    {
+        var _model = __get_model(true);
+        if (!is_struct(_model)) return false;
+        
+        return _model.__fast_mode;
+    }
+    
     static animation_sync = function()
     {
         __scribble_error(".animation_sync() has been removed\nPlease get in touch if this feature is essential for your project");
@@ -1420,6 +1436,8 @@ function __scribble_class_element(_string, _unique_id) constructor
         return __model;
     }
     
+    
+    
     static __set_standard_uniforms = function(_typist, _function_scope)
     {
         static _u_fTime         = shader_get_uniform(__shd_scribble, "u_fTime"                   );
@@ -1551,7 +1569,9 @@ function __scribble_class_element(_string, _unique_id) constructor
         
         shader_reset();
     }
-   
+    
+    
+    
     static __set_msdf_uniforms = function(_typist, _function_scope)
     {
         static _msdf_u_fTime         = shader_get_uniform(__shd_scribble_msdf, "u_fTime"        );
@@ -1714,6 +1734,92 @@ function __scribble_class_element(_string, _unique_id) constructor
         
         shader_reset();
     }
+    
+    
+    
+    static __set_fast_standard_uniforms = function(_typist, _function_scope)
+    {
+        static _u_fTime         = shader_get_uniform(__shd_scribble_fast, "u_fTime"       );
+        static _u_vColourBlend  = shader_get_uniform(__shd_scribble_fast, "u_vColourBlend");
+        static _u_vFlash        = shader_get_uniform(__shd_scribble_fast, "u_vFlash"      );
+        
+        shader_set(__shd_scribble_fast);
+        shader_set_uniform_f(_u_fTime, __animation_time);
+        
+        //TODO - Optimise
+        var _blend_colour = __blend_colour;
+        shader_set_uniform_f(_u_vColourBlend, colour_get_red(  _blend_colour)/255,
+                                              colour_get_green(_blend_colour)/255,
+                                              colour_get_blue( _blend_colour)/255,
+                                              __blend_alpha);
+        
+        shader_set_uniform_f(_u_vFlash, colour_get_red(  __flash_colour)/255,
+                                        colour_get_green(__flash_colour)/255,
+                                        colour_get_blue( __flash_colour)/255,
+                                        __flash_alpha);
+        
+        shader_reset();
+    }
+    
+    
+    
+    static __set_fast_msdf_uniforms = function(_typist, _function_scope)
+    {
+        static _msdf_u_fTime         = shader_get_uniform(__shd_scribble_fast_msdf, "u_fTime"        );
+        static _msdf_u_vColourBlend  = shader_get_uniform(__shd_scribble_fast_msdf, "u_vColourBlend" );
+        static _msdf_u_vFlash        = shader_get_uniform(__shd_scribble_fast_msdf, "u_vFlash"       );
+    
+        static _msdf_u_vShadowOffsetAndSoftness = shader_get_uniform(__shd_scribble_fast_msdf, "u_vShadowOffsetAndSoftness");
+        static _msdf_u_vShadowColour            = shader_get_uniform(__shd_scribble_fast_msdf, "u_vShadowColour"           );
+        static _msdf_u_vBorderColour            = shader_get_uniform(__shd_scribble_fast_msdf, "u_vBorderColour"           );
+        static _msdf_u_fBorderThickness         = shader_get_uniform(__shd_scribble_fast_msdf, "u_fBorderThickness"        );
+        static _msdf_u_vOutputSize              = shader_get_uniform(__shd_scribble_fast_msdf, "u_vOutputSize"             );
+        
+        shader_set(__shd_scribble_fast_msdf);
+        shader_set_uniform_f(_msdf_u_fTime, __animation_time);
+        
+        //TODO - Optimise
+        shader_set_uniform_f(_msdf_u_vColourBlend, colour_get_red(  __blend_colour)/255,
+                                                   colour_get_green(__blend_colour)/255,
+                                                   colour_get_blue( __blend_colour)/255,
+                                                   __blend_alpha);
+        
+        shader_set_uniform_f(_msdf_u_vFlash, colour_get_red(  __flash_colour)/255,
+                                             colour_get_green(__flash_colour)/255,
+                                             colour_get_blue( __flash_colour)/255,
+                                             __flash_alpha);
+        
+        shader_set_uniform_f(_msdf_u_vShadowOffsetAndSoftness, __msdf_shadow_xoffset, __msdf_shadow_yoffset, __msdf_shadow_softness);
+        
+        shader_set_uniform_f(_msdf_u_vShadowColour, colour_get_red(  __msdf_shadow_colour)/255,
+                                                    colour_get_green(__msdf_shadow_colour)/255,
+                                                    colour_get_blue( __msdf_shadow_colour)/255,
+                                                    __msdf_shadow_alpha);
+        
+        shader_set_uniform_f(_msdf_u_vBorderColour, colour_get_red(  __msdf_border_colour)/255,
+                                                    colour_get_green(__msdf_border_colour)/255,
+                                                    colour_get_blue( __msdf_border_colour)/255);
+        
+        shader_set_uniform_f(_msdf_u_fBorderThickness, __msdf_border_thickness);
+        
+        var _surface = surface_get_target();
+        if (_surface >= 0)
+        {
+            var _surface_width  = surface_get_width( _surface);
+            var _surface_height = surface_get_height(_surface);
+        }
+        else
+        {
+            var _surface_width  = window_get_width();
+            var _surface_height = window_get_height();
+        }
+        
+        shader_set_uniform_f(_msdf_u_vOutputSize, _surface_width, _surface_height);
+        
+        shader_reset();
+    }
+    
+    
     
     static __update_scale_to_box_scale = function()
     {
